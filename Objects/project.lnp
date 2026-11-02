@@ -1,0 +1,10 @@
+".\Objects\delay.obj",
+".\Objects\main.obj",
+".\Objects\uart.obj",
+".\Objects\led.obj",
+".\Objects\motor.obj",
+".\Objects\device.obj",
+".\Objects\esp8266.obj",
+".\Objects\key.obj" 
+TO ".\Objects\project" 
+PRINT(".\Listings\project.m51") RAMSIZE(256) 

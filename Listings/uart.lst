@@ -1,0 +1,69 @@
+C51 COMPILER V9.54   UART                                                                  10/20/2026 19:53:08 PAGE 1   
+
+
+C51 COMPILER V9.54, COMPILATION OF MODULE UART
+OBJECT MODULE PLACED IN .\Objects\uart.obj
+COMPILER INVOKED BY: C:\Keil_v5\C51\BIN\C51.EXE uart.c OPTIMIZE(8,SPEED) BROWSE DEBUG OBJECTEXTEND PRINT(.\Listings\uart
+                    -.lst) OBJECT(.\Objects\uart.obj)
+
+line level    source
+
+   1          #include "uart.h"
+   2          
+   3          void (*UART_RxCallback)(u8 dat) = 0;
+   4          
+   5          /* 发送完成标志。由串口中断置位，UART_SendByte 等它。
+   6             这样发送时不必关掉接收中断，收发互不干扰。        */
+   7          static volatile bit tx_done = 0;
+   8          
+   9          void UART_Init() {
+  10   1          SCON = 0x50;  /* 方式1，8位数据，允许接收 */
+  11   1          TMOD &= 0x0F;
+  12   1          TMOD |= 0x20; /* 定时器1 方式2 自动重装，做波特率发生器 */
+  13   1          TH1 = 0xFD;   /* 9600bps @ 11.0592MHz */
+  14   1          TL1 = 0xFD;
+  15   1          TR1 = 1;
+  16   1          ES  = 1;
+  17   1          EA  = 1;
+  18   1      }
+  19          
+  20          void UART_SendByte(u8 dat) {
+  21   1          tx_done = 0;
+  22   1          SBUF = dat;         //串口数据缓冲器：写它 = 发送这个字节；读它 = 取出刚收到的字节
+  23   1          while (!tx_done);   /* TI 由中断清除并置 tx_done */
+  24   1      }
+  25          
+  26          void UART_SendString(char *s) {
+  27   1          while (*s != '\0') {
+  28   2              UART_SendByte(*s++);
+  29   2          }
+  30   1      }
+  31          
+  32          void UART_ISR() interrupt 4 {
+  33   1          if (RI) {
+  34   2              RI = 0;
+  35   2              if (UART_RxCallback != 0) {
+  36   3                  UART_RxCallback(SBUF);
+  37   3              }
+  38   2          }
+  39   1          if (TI) {
+  40   2              TI = 0;         /* 必须在中断里清，否则 TI 一直挂着反复触发中断 */
+  41   2              tx_done = 1;
+  42   2          }
+  43   1      }
+
+
+MODULE INFORMATION:   STATIC OVERLAYABLE
+   CODE SIZE        =    158    ----
+   CONSTANT SIZE    =   ----    ----
+   XDATA SIZE       =   ----    ----
+   PDATA SIZE       =   ----    ----
+   DATA SIZE        =      3       3
+   IDATA SIZE       =   ----    ----
+   BIT SIZE         =      1    ----
+END OF MODULE INFORMATION.
+
+C51 COMPILER V9.54   UART                                                                  10/20/2026 19:53:08 PAGE 2   
+
+
+C51 COMPILATION COMPLETE.  0 WARNING(S),  0 ERROR(S)

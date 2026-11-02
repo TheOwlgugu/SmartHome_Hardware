@@ -1,0 +1,192 @@
+C51 COMPILER V9.54   ESP8266                                                               10/20/2026 19:53:08 PAGE 1   
+
+
+C51 COMPILER V9.54, COMPILATION OF MODULE ESP8266
+OBJECT MODULE PLACED IN .\Objects\esp8266.obj
+COMPILER INVOKED BY: C:\Keil_v5\C51\BIN\C51.EXE esp8266.c OPTIMIZE(8,SPEED) BROWSE DEBUG OBJECTEXTEND PRINT(.\Listings\e
+                    -sp8266.lst) OBJECT(.\Objects\esp8266.obj)
+
+line level    source
+
+   1          #include "esp8266.h"
+   2          #include "uart.h"
+   3          #include "delay.h"
+   4          
+   5          /* 解析状态：收到小写 'i' 后置1，等下一个字符是 '0' / '1' / '2' */
+   6          static bit flag_rx_i = 0;
+   7          
+   8          /* AT 配置期间置0，不解析，避免把 ESP 的应答当成手机指令 */
+   9          static bit esp_ready = 1;
+  10          
+  11          /* 裸收发模式：直接发 "sXX\r\n"，不套 AT+CIPSEND。
+  12             没调用 ESP_ATSetup() 时就是这个模式，方便用电脑串口助手调试硬件。
+  13             调用 ESP_ATSetup() 之后自动切成 CIPSEND 模式。                  */
+  14          static bit raw_mode = 1;
+  15          
+  16          /* 手机下发的待处理指令，主循环取走。0 = 无 */
+  17          static u8 pending_cmd = 0;
+  18          
+  19          /* ---- 链路号跟踪 ----
+  20             ESP 的 TCP Server 给每个连接分配 0~4 的编号，数据以 +IPD,<id>,<len>: 开头。
+  21             手机掉线重连后编号可能变，所以不能把 AT+CIPSEND 的链路号写死成 0，
+  22             否则会往一条已经死掉的链路发，手机再也收不到状态。
+  23             这里把 "+IPD," 后面那个数字抓出来，回复时原样用它。              */
+  24          static u8 code IPD_STR[] = "+IPD,";
+  25          static u8 ipd_pos = 0;          /* "+IPD," 的匹配进度 */
+  26          static bit expect_link_id = 0;  /* 下一个字符就是链路号 */
+  27          static u8 link_id = '0';        /* 以 ASCII 存，直接发出去 */
+  28          
+  29          void ESP_Init() {
+  30   1          UART_RxCallback = ESP_ReceiveHandler;
+  31   1          esp_ready = 1;
+  32   1          raw_mode  = 1;
+  33   1          link_id   = '0';
+  34   1      }
+  35          
+  36          /* 开机配置 ESP8266，把它变成 TCP Server，手机 App 作为 Client 连过来。
+  37          
+  38             为什么必须每次开机都发：
+  39             AT 1.7.4 里 CWMODE / CWJAP 是写 flash 的，断电不丢；
+  40             但 CIPMUX 和 CIPSERVER 不存 flash，每次上电都会复位，
+  41             所以这两条只能由 51 每次开机重新发一遍。                  */
+  42          void ESP_ATSetup() {
+  43   1          esp_ready = 0;      /* 配置期间屏蔽解析 */
+  44   1          raw_mode  = 1;      /* AT 指令本身要裸发 */
+  45   1      
+  46   1          Delay(3000);                                /* 等 ESP 上电自检完成 */
+  47   1      
+  48   1          UART_SendString("AT\r\n");
+  49   1          Delay(500);
+  50   1      
+  51   1          UART_SendString("ATE0\r\n");                /* 关回显，减少串口噪音 */
+  52   1          Delay(500);
+  53   1      
+  54   1      #ifdef ESP_CONFIG_WIFI
+C51 COMPILER V9.54   ESP8266                                                               10/20/2026 19:53:08 PAGE 2   
+
+                  UART_SendString("AT+CWMODE=1\r\n");         /* Station 模式 */
+                  Delay(1000);
+              
+                  UART_SendString("AT+CWJAP=\"" ESP_WIFI_SSID "\",\"" ESP_WIFI_PASS "\"\r\n");
+                  Delay(10000);                               /* 连 WiFi 慢，给足时间 */
+              #else
+  61   1          Delay(6000);        /* 不自己配 WiFi，留时间给 ESP 用 flash 里的配置自动重连 */
+  62   1      #endif
+  63   1      
+  64   1          UART_SendString("AT+CIPMUX=1\r\n");         /* 开 Server 必须先开多连接 */
+  65   1          Delay(500);
+  66   1      
+  67   1          UART_SendString("AT+CIPSERVER=1," ESP_TCP_PORT "\r\n");
+  68   1          Delay(1000);
+  69   1      
+  70   1          raw_mode  = 0;      /* 之后上报都要套 AT+CIPSEND */
+  71   1          esp_ready = 1;
+  72   1      }
+  73          
+  74          /* 上报格式：s + 灯状态 + 风扇状态，例如 s10
+  75          
+  76             多连接模式下不能透传，每次要先发 AT+CIPSEND=<链路号>,3。
+  77             长度恒为 3，所以只有链路号是变的，用固定延时代替解析 '>' 提示符即可。 */
+  78          void ESP_SendStatus(u8 light, u8 fan) {
+  79   1          char buf[6];
+  80   1      
+  81   1          buf[0] = 's';
+  82   1          buf[1] = light ? '1' : '0';
+  83   1          buf[2] = fan   ? '1' : '0';
+  84   1      
+  85   1          if (raw_mode) {
+  86   2              /* 调试模式：补上换行，电脑串口助手里一行一条看得清楚 */
+  87   2              buf[3] = '\r';
+  88   2              buf[4] = '\n';
+  89   2              buf[5] = '\0';
+  90   2              UART_SendString(buf);
+  91   2              return;
+  92   2          }
+  93   1      
+  94   1          buf[3] = '\0';
+  95   1          UART_SendString("AT+CIPSEND=");
+  96   1          UART_SendByte(link_id);
+  97   1          UART_SendString(",3\r\n");
+  98   1          Delay(100);          /* 等 ESP 回 '>' */
+  99   1          UART_SendString(buf);
+ 100   1          Delay(100);          /* 等 SEND OK */
+ 101   1      }
+ 102          
+ 103          /* 串口中断里调用，只做最小的事：识别指令并存起来，绝不在这里发串口。
+ 104          
+ 105             手机发来的 i1 / i2 在串口上实际长这样：+IPD,0,2:i1
+ 106             先用这个前缀抓链路号，剩下的 i<数字> 照常解析。
+ 107          
+ 108             i0 是手机每 5 秒发一次的心跳兼查询包：不改任何状态，只回一条 sXX。 */
+ 109          void ESP_ReceiveHandler(u8 rx_data) {
+ 110   1          if (!esp_ready) {
+ 111   2              return;
+ 112   2          }
+ 113   1      
+ 114   1          /* ---- 先抓链路号 ---- */
+ 115   1          if (expect_link_id) {
+ 116   2              expect_link_id = 0;
+C51 COMPILER V9.54   ESP8266                                                               10/20/2026 19:53:08 PAGE 3   
+
+ 117   2              if (rx_data >= '0' && rx_data <= '4') {
+ 118   3                  link_id = rx_data;
+ 119   3              }
+ 120   2              return;
+ 121   2          }
+ 122   1      
+ 123   1          if (rx_data == IPD_STR[ipd_pos]) {
+ 124   2              ipd_pos++;
+ 125   2              if (IPD_STR[ipd_pos] == '\0') {     /* "+IPD," 整个匹配上了 */
+ 126   3                  ipd_pos = 0;
+ 127   3                  expect_link_id = 1;
+ 128   3              }
+ 129   2              return;     /* '+' 'I' 'P' 'D' ',' 都不是 'i'，直接返回不影响下面的解析 */
+ 130   2          }
+ 131   1          ipd_pos = (rx_data == '+') ? 1 : 0;
+ 132   1      
+ 133   1          /* ---- 再解析 i<数字> ---- */
+ 134   1          if (flag_rx_i) {
+ 135   2              flag_rx_i = 0;
+ 136   2              if (rx_data == '1') {
+ 137   3                  pending_cmd = 1;        /* 控制灯 */
+ 138   3                  return;
+ 139   3              } else if (rx_data == '2') {
+ 140   3                  pending_cmd = 2;        /* 控制风扇 */
+ 141   3                  return;
+ 142   3              } else if (rx_data == '0') {
+ 143   3                  pending_cmd = 3;        /* 心跳/查询，只上报 */
+ 144   3                  return;
+ 145   3              }
+ 146   2              /* 不是数字就当没看见，继续往下判断这个字符本身是不是 'i' */
+ 147   2          }
+ 148   1      
+ 149   1          if (rx_data == 'i') {
+ 150   2              flag_rx_i = 1;
+ 151   2          }
+ 152   1      }
+ 153          
+ 154          /* 主循环调用。关中断取值，避免正好被串口中断改掉 */
+ 155          u8 ESP_GetCommand() {
+ 156   1          u8 cmd;
+ 157   1      
+ 158   1          ES = 0;
+ 159   1          cmd = pending_cmd;
+ 160   1          pending_cmd = 0;
+ 161   1          ES = 1;
+ 162   1      
+ 163   1          return cmd;
+ 164   1      }
+
+
+MODULE INFORMATION:   STATIC OVERLAYABLE
+   CODE SIZE        =    296    ----
+   CONSTANT SIZE    =     71    ----
+   XDATA SIZE       =   ----    ----
+   PDATA SIZE       =   ----    ----
+   DATA SIZE        =      3       6
+   IDATA SIZE       =   ----    ----
+   BIT SIZE         =      4    ----
+END OF MODULE INFORMATION.
+
+
+C51 COMPILATION COMPLETE.  0 WARNING(S),  0 ERROR(S)

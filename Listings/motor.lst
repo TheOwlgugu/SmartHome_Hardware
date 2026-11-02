@@ -1,0 +1,56 @@
+C51 COMPILER V9.54   MOTOR                                                                 10/20/2026 19:53:08 PAGE 1   
+
+
+C51 COMPILER V9.54, COMPILATION OF MODULE MOTOR
+OBJECT MODULE PLACED IN .\Objects\motor.obj
+COMPILER INVOKED BY: C:\Keil_v5\C51\BIN\C51.EXE motor.c OPTIMIZE(8,SPEED) BROWSE DEBUG OBJECTEXTEND PRINT(.\Listings\mot
+                    -or.lst) OBJECT(.\Objects\motor.obj)
+
+line level    source
+
+   1          #include "motor.h"
+   2          
+   3          /* 风扇 = 板载 ULN2003(U14) 的第 1 路。
+   4             原理图：U14 输入 IN1~IN4 = P1.0~P1.3，输出 OUT1~OUT4 接到步进电机座 J47。
+   5             接线：马达正极 -> J47 的 VCC，马达负极 -> J47 的 OUT1。
+   6             P1.0 = 1 时 ULN2003 把 OUT1 拉到地，马达通电转动。
+   7             ULN2003 单路可灌 500mA 且内部自带续流二极管，不用再外接任何元件。
+   8          
+   9             切勿把马达直接挂在单片机 IO 上：51 的拉电流只有几十 uA，
+  10             且马达断电瞬间的反电动势会击穿 IO 口。                           */
+  11          sbit FAN = P1^0;
+  12          
+  13          /* 蜂鸣器挂在 ULN2003 的第 5 路，输入是 P1.5。
+  14             这里必须主动拉低，否则上电后 P1 默认为高，蜂鸣器会一直叫。      */
+  15          sbit BEEP = P1^5;
+  16          
+  17          static bit fan_state = 0;
+  18          
+  19          void Motor_Init() {
+  20   1          BEEP = 0;
+  21   1          FAN  = 0;
+  22   1          fan_state = 0;
+  23   1      }
+  24          
+  25          void Motor_Control(bit state) {
+  26   1          fan_state = state;
+  27   1          FAN = state;
+  28   1      }
+  29          
+  30          bit Motor_GetState() {
+  31   1          return fan_state;
+  32   1      }
+
+
+MODULE INFORMATION:   STATIC OVERLAYABLE
+   CODE SIZE        =     19    ----
+   CONSTANT SIZE    =   ----    ----
+   XDATA SIZE       =   ----    ----
+   PDATA SIZE       =   ----    ----
+   DATA SIZE        =   ----    ----
+   IDATA SIZE       =   ----    ----
+   BIT SIZE         =      1       1
+END OF MODULE INFORMATION.
+
+
+C51 COMPILATION COMPLETE.  0 WARNING(S),  0 ERROR(S)

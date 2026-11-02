@@ -1,0 +1,523 @@
+BL51 BANKED LINKER/LOCATER V6.22                                                        10/20/2026  19:53:08  PAGE 1
+
+
+BL51 BANKED LINKER/LOCATER V6.22, INVOKED BY:
+C:\KEIL_V5\C51\BIN\BL51.EXE .\Objects\delay.obj, .\Objects\main.obj, .\Objects\uart.obj, .\Objects\led.obj, .\Objects\mo
+>> tor.obj, .\Objects\device.obj, .\Objects\esp8266.obj, .\Objects\key.obj TO .\Objects\project PRINT (.\Listings\projec
+>> t.m51) RAMSIZE (256)
+
+
+MEMORY MODEL: SMALL
+
+
+INPUT MODULES INCLUDED:
+  .\Objects\delay.obj (DELAY)
+  .\Objects\main.obj (MAIN)
+  .\Objects\uart.obj (UART)
+  .\Objects\led.obj (LED)
+  .\Objects\motor.obj (MOTOR)
+  .\Objects\device.obj (DEVICE)
+  .\Objects\esp8266.obj (ESP8266)
+  .\Objects\key.obj (KEY)
+  C:\KEIL_V5\C51\LIB\C51S.LIB (?C_STARTUP)
+  C:\KEIL_V5\C51\LIB\C51S.LIB (?C?CLDPTR)
+  C:\KEIL_V5\C51\LIB\C51S.LIB (?C?ICALL)
+  C:\KEIL_V5\C51\LIB\C51S.LIB (?C_INIT)
+
+
+LINK MAP OF MODULE:  .\Objects\project (DELAY)
+
+
+            TYPE    BASE      LENGTH    RELOCATION   SEGMENT NAME
+            -----------------------------------------------------
+
+            * * * * * * *   D A T A   M E M O R Y   * * * * * * *
+            REG     0000H     0008H     ABSOLUTE     "REG BANK 0"
+            DATA    0008H     000CH     UNIT         _DATA_GROUP_
+            DATA    0014H     0003H     UNIT         ?DT?UART
+            DATA    0017H     0003H     UNIT         ?DT?ESP8266
+                    001AH     0006H                  *** GAP ***
+            BIT     0020H.0   0000H.4   UNIT         ?BI?ESP8266
+            BIT     0020H.4   0000H.1   UNIT         ?BI?UART
+            BIT     0020H.5   0000H.1   UNIT         ?BI?MOTOR
+            BIT     0020H.6   0000H.1   UNIT         ?BI?DEVICE
+            BIT     0020H.7   0000H.1   UNIT         _BIT_GROUP_
+            IDATA   0021H     0001H     UNIT         ?STACK
+
+            * * * * * * *   C O D E   M E M O R Y   * * * * * * *
+            CODE    0000H     0003H     ABSOLUTE     
+            CODE    0003H     001FH     UNIT         ?C?LIB_CODE
+                    0022H     0001H                  *** GAP ***
+            CODE    0023H     0003H     ABSOLUTE     
+            CODE    0026H     008CH     UNIT         ?C_C51STARTUP
+            CODE    00B2H     005FH     UNIT         ?PR?_ESP_SENDSTATUS?ESP8266
+            CODE    0111H     005BH     UNIT         ?PR?UART_ISR?UART
+            CODE    016CH     0057H     UNIT         ?PR?ESP_ATSETUP?ESP8266
+            CODE    01C3H     0057H     UNIT         ?PR?_ESP_RECEIVEHANDLER?ESP8266
+            CODE    021AH     0047H     UNIT         ?CO?ESP8266
+            CODE    0261H     002EH     UNIT         ?PR?MAIN?MAIN
+            CODE    028FH     002BH     UNIT         ?PR?_DEVICE_TOGGLE?DEVICE
+            CODE    02BAH     002BH     UNIT         ?PR?KEY_SCAN?KEY
+            CODE    02E5H     0025H     UNIT         ?PR?_UART_SENDSTRING?UART
+BL51 BANKED LINKER/LOCATER V6.22                                                      10/20/2026  19:53:08  PAGE 2
+
+
+            CODE    030AH     001DH     UNIT         ?C_INITSEG
+            CODE    0327H     0016H     UNIT         ?PR?UART_INIT?UART
+            CODE    033DH     0015H     UNIT         ?PR?_DELAY?DELAY
+            CODE    0352H     0011H     UNIT         ?PR?ESP_INIT?ESP8266
+            CODE    0363H     000EH     UNIT         ?PR?DEVICE_REPORT?DEVICE
+            CODE    0371H     000AH     UNIT         ?PR?ESP_GETCOMMAND?ESP8266
+            CODE    037BH     0009H     UNIT         ?PR?MOTOR_CONTROL?MOTOR
+            CODE    0384H     0009H     UNIT         ?PR?DEVICE_INIT?DEVICE
+            CODE    038DH     0008H     UNIT         ?PR?_UART_SENDBYTE?UART
+            CODE    0395H     0007H     UNIT         ?PR?MOTOR_INIT?MOTOR
+            CODE    039CH     0006H     UNIT         ?PR?LED_INIT?LED
+            CODE    03A2H     0006H     UNIT         ?PR?LED_CONTROL?LED
+            CODE    03A8H     0003H     UNIT         ?PR?MOTOR_GETSTATE?MOTOR
+
+
+
+OVERLAY MAP OF MODULE:   .\Objects\project (DELAY)
+
+
+SEGMENT                                    BIT_GROUP          DATA_GROUP 
+  +--> CALLED SEGMENT                   START    LENGTH     START    LENGTH
+---------------------------------------------------------------------------
+?C_C51STARTUP                           -----    -----      -----    -----
+  +--> ?PR?MAIN?MAIN
+  +--> ?C_INITSEG
+
+?PR?MAIN?MAIN                           -----    -----      0008H    0002H
+  +--> ?PR?DEVICE_INIT?DEVICE
+  +--> ?PR?UART_INIT?UART
+  +--> ?PR?ESP_INIT?ESP8266
+  +--> ?PR?ESP_ATSETUP?ESP8266
+  +--> ?PR?DEVICE_REPORT?DEVICE
+  +--> ?PR?KEY_SCAN?KEY
+  +--> ?PR?_DEVICE_TOGGLE?DEVICE
+  +--> ?PR?ESP_GETCOMMAND?ESP8266
+
+?PR?DEVICE_INIT?DEVICE                  -----    -----      -----    -----
+  +--> ?PR?LED_INIT?LED
+  +--> ?PR?MOTOR_INIT?MOTOR
+
+?PR?ESP_INIT?ESP8266                    -----    -----      -----    -----
+  +--> ?PR?_ESP_RECEIVEHANDLER?ESP8266
+
+?PR?_ESP_RECEIVEHANDLER?ESP8266         -----    -----      -----    -----
+  +--> ?CO?ESP8266
+
+?PR?ESP_ATSETUP?ESP8266                 -----    -----      -----    -----
+  +--> ?PR?_DELAY?DELAY
+  +--> ?CO?ESP8266
+  +--> ?PR?_UART_SENDSTRING?UART
+
+?PR?_UART_SENDSTRING?UART               -----    -----      0011H    0003H
+  +--> ?PR?_UART_SENDBYTE?UART
+
+?PR?DEVICE_REPORT?DEVICE                -----    -----      -----    -----
+  +--> ?PR?MOTOR_GETSTATE?MOTOR
+  +--> ?PR?_ESP_SENDSTATUS?ESP8266
+BL51 BANKED LINKER/LOCATER V6.22                                                      10/20/2026  19:53:08  PAGE 3
+
+
+
+?PR?_ESP_SENDSTATUS?ESP8266             -----    -----      000BH    0006H
+  +--> ?PR?_UART_SENDSTRING?UART
+  +--> ?CO?ESP8266
+  +--> ?PR?_UART_SENDBYTE?UART
+  +--> ?PR?_DELAY?DELAY
+
+?PR?KEY_SCAN?KEY                        -----    -----      000AH    0001H
+  +--> ?PR?_DELAY?DELAY
+
+?PR?_DEVICE_TOGGLE?DEVICE               -----    -----      000AH    0001H
+  +--> ?PR?LED_CONTROL?LED
+  +--> ?PR?MOTOR_GETSTATE?MOTOR
+  +--> ?PR?MOTOR_CONTROL?MOTOR
+  +--> ?PR?DEVICE_REPORT?DEVICE
+
+?PR?LED_CONTROL?LED                     0020H.7  0000H.1    -----    -----
+
+?PR?MOTOR_CONTROL?MOTOR                 0020H.7  0000H.1    -----    -----
+
+
+
+SYMBOL TABLE OF MODULE:  .\Objects\project (DELAY)
+
+  VALUE           TYPE          NAME
+  ----------------------------------
+
+  -------         MODULE        DELAY
+  C:0000H         SYMBOL        _ICE_DUMMY_
+  C:033DH         PUBLIC        _Delay
+  -------         PROC          _DELAY
+  D:0006H         SYMBOL        ms
+  -------         DO            
+  D:0005H         SYMBOL        i
+  D:0004H         SYMBOL        j
+  -------         ENDDO         
+  C:033DH         LINE#         3
+  C:033DH         LINE#         5
+  C:0347H         LINE#         6
+  C:0349H         LINE#         7
+  C:034BH         LINE#         8
+  C:034BH         LINE#         9
+  C:034DH         LINE#         10
+  C:034FH         LINE#         11
+  C:0351H         LINE#         12
+  -------         ENDPROC       _DELAY
+  -------         ENDMOD        DELAY
+
+  -------         MODULE        MAIN
+  C:0000H         SYMBOL        _ICE_DUMMY_
+  C:0261H         PUBLIC        main
+  -------         PROC          MAIN
+  -------         DO            
+  D:0008H         SYMBOL        key
+  D:0009H         SYMBOL        cmd
+  -------         ENDDO         
+  C:0261H         LINE#         20
+BL51 BANKED LINKER/LOCATER V6.22                                                      10/20/2026  19:53:08  PAGE 4
+
+
+  C:0261H         LINE#         21
+  C:0264H         LINE#         22
+  C:0266H         LINE#         25
+  C:0269H         LINE#         26
+  C:026CH         LINE#         27
+  C:026FH         LINE#         31
+  C:0272H         LINE#         35
+  C:0275H         LINE#         38
+  C:0275H         LINE#         39
+  C:027AH         LINE#         40
+  C:027EH         LINE#         41
+  C:0281H         LINE#         42
+  C:0281H         LINE#         44
+  C:0286H         LINE#         45
+  C:028AH         LINE#         46
+  C:028DH         LINE#         47
+  C:028DH         LINE#         48
+  -------         ENDPROC       MAIN
+  -------         ENDMOD        MAIN
+
+  -------         MODULE        UART
+  C:0000H         SYMBOL        _ICE_DUMMY_
+  B:00A8H.7       PUBLIC        EA
+  C:0111H         PUBLIC        UART_ISR
+  B:00A8H.4       PUBLIC        ES
+  B:0098H.0       PUBLIC        RI
+  B:0098H.1       PUBLIC        TI
+  C:02E5H         PUBLIC        _UART_SendString
+  D:0099H         PUBLIC        SBUF
+  C:0327H         PUBLIC        UART_Init
+  D:0098H         PUBLIC        SCON
+  D:0089H         PUBLIC        TMOD
+  C:038DH         PUBLIC        _UART_SendByte
+  D:008DH         PUBLIC        TH1
+  D:008BH         PUBLIC        TL1
+  B:0088H.6       PUBLIC        TR1
+  B:0020H.4       SYMBOL        tx_done
+  D:0014H         PUBLIC        _UART_RxCallback
+  -------         PROC          UART_INIT
+  C:0327H         LINE#         9
+  C:0327H         LINE#         10
+  C:032AH         LINE#         11
+  C:032DH         LINE#         12
+  C:0330H         LINE#         13
+  C:0333H         LINE#         14
+  C:0336H         LINE#         15
+  C:0338H         LINE#         16
+  C:033AH         LINE#         17
+  C:033CH         LINE#         18
+  -------         ENDPROC       UART_INIT
+  -------         PROC          _UART_SENDBYTE
+  D:0007H         SYMBOL        dat
+  C:038DH         LINE#         20
+  C:038DH         LINE#         21
+  C:038FH         LINE#         22
+  C:0391H         LINE#         23
+  C:0394H         LINE#         24
+BL51 BANKED LINKER/LOCATER V6.22                                                      10/20/2026  19:53:08  PAGE 5
+
+
+  -------         ENDPROC       _UART_SENDBYTE
+  -------         PROC          _UART_SENDSTRING
+  D:0011H         SYMBOL        s
+  C:02E5H         LINE#         26
+  C:02EBH         LINE#         27
+  C:02F6H         LINE#         28
+  C:0307H         LINE#         29
+  C:0309H         LINE#         30
+  -------         ENDPROC       _UART_SENDSTRING
+  -------         PROC          UART_ISR
+  C:0111H         LINE#         32
+  C:012EH         LINE#         33
+  C:0131H         LINE#         34
+  C:0133H         LINE#         35
+  C:0141H         LINE#         36
+  C:014AH         LINE#         37
+  C:014AH         LINE#         38
+  C:014AH         LINE#         39
+  C:014DH         LINE#         40
+  C:014FH         LINE#         41
+  C:0151H         LINE#         42
+  C:0151H         LINE#         43
+  -------         ENDPROC       UART_ISR
+  -------         ENDMOD        UART
+
+  -------         MODULE        LED
+  C:0000H         SYMBOL        _ICE_DUMMY_
+  D:0080H         PUBLIC        P0
+  D:00A0H         PUBLIC        P2
+  C:03A2H         PUBLIC        LED_Control
+  C:039CH         PUBLIC        LED_Init
+  B:00A0H.0       PUBLIC        LIGHT
+  -------         PROC          LED_INIT
+  C:039CH         LINE#         5
+  C:039CH         LINE#         7
+  C:039FH         LINE#         9
+  C:03A1H         LINE#         10
+  -------         ENDPROC       LED_INIT
+  -------         PROC          LED_CONTROL
+  B:0020H.7       SYMBOL        state
+  C:03A2H         LINE#         12
+  C:03A2H         LINE#         13
+  C:03A7H         LINE#         15
+  -------         ENDPROC       LED_CONTROL
+  -------         ENDMOD        LED
+
+  -------         MODULE        MOTOR
+  C:0000H         SYMBOL        _ICE_DUMMY_
+  D:0090H         PUBLIC        P1
+  C:0395H         PUBLIC        Motor_Init
+  C:03A8H         PUBLIC        Motor_GetState
+  B:0090H.5       PUBLIC        BEEP
+  B:0020H.5       SYMBOL        fan_state
+  B:0090H.0       PUBLIC        FAN
+  C:037BH         PUBLIC        Motor_Control
+  -------         PROC          MOTOR_INIT
+  C:0395H         LINE#         19
+BL51 BANKED LINKER/LOCATER V6.22                                                      10/20/2026  19:53:08  PAGE 6
+
+
+  C:0395H         LINE#         20
+  C:0397H         LINE#         21
+  C:0399H         LINE#         22
+  C:039BH         LINE#         23
+  -------         ENDPROC       MOTOR_INIT
+  -------         PROC          MOTOR_CONTROL
+  B:0020H.7       SYMBOL        state
+  C:037BH         LINE#         25
+  C:037BH         LINE#         26
+  C:037FH         LINE#         27
+  C:0383H         LINE#         28
+  -------         ENDPROC       MOTOR_CONTROL
+  -------         PROC          MOTOR_GETSTATE
+  C:03A8H         LINE#         30
+  C:03A8H         LINE#         31
+  C:03AAH         LINE#         32
+  -------         ENDPROC       MOTOR_GETSTATE
+  -------         ENDMOD        MOTOR
+
+  -------         MODULE        DEVICE
+  C:0000H         SYMBOL        _ICE_DUMMY_
+  C:028FH         PUBLIC        _Device_Toggle
+  B:0020H.6       SYMBOL        light_state
+  C:0363H         PUBLIC        Device_Report
+  C:0384H         PUBLIC        Device_Init
+  -------         PROC          DEVICE_INIT
+  C:0384H         LINE#         8
+  C:0384H         LINE#         9
+  C:0387H         LINE#         10
+  C:038AH         LINE#         11
+  C:038CH         LINE#         12
+  -------         ENDPROC       DEVICE_INIT
+  -------         PROC          DEVICE_REPORT
+  C:0363H         LINE#         15
+  C:0363H         LINE#         16
+  -------         ENDPROC       DEVICE_REPORT
+  -------         PROC          _DEVICE_TOGGLE
+  D:000AH         SYMBOL        dev_id
+  C:028FH         LINE#         26
+  C:0291H         LINE#         27
+  C:0296H         LINE#         28
+  C:0298H         LINE#         29
+  C:029FH         LINE#         30
+  C:02A1H         LINE#         31
+  C:02A6H         LINE#         32
+  C:02AFH         LINE#         33
+  C:02B1H         LINE#         34
+  C:02B6H         LINE#         36
+  C:02B6H         LINE#         39
+  C:02B6H         LINE#         41
+  C:02B9H         LINE#         42
+  -------         ENDPROC       _DEVICE_TOGGLE
+  -------         ENDMOD        DEVICE
+
+  -------         MODULE        ESP8266
+  C:0000H         SYMBOL        _ICE_DUMMY_
+  D:0017H         SYMBOL        pending_cmd
+BL51 BANKED LINKER/LOCATER V6.22                                                      10/20/2026  19:53:08  PAGE 7
+
+
+  B:00A8H.4       PUBLIC        ES
+  C:0371H         PUBLIC        ESP_GetCommand
+  B:0020H.0       SYMBOL        flag_rx_i
+  C:025BH         SYMBOL        IPD_STR
+  B:0020H.1       SYMBOL        esp_ready
+  B:0020H.2       SYMBOL        expect_link_id
+  B:0020H.3       SYMBOL        raw_mode
+  C:01C3H         PUBLIC        _ESP_ReceiveHandler
+  D:0018H         SYMBOL        link_id
+  C:00B2H         PUBLIC        _ESP_SendStatus
+  C:0352H         PUBLIC        ESP_Init
+  D:0019H         SYMBOL        ipd_pos
+  C:016CH         PUBLIC        ESP_ATSetup
+  -------         PROC          ESP_INIT
+  C:0352H         LINE#         29
+  C:0352H         LINE#         30
+  C:035BH         LINE#         31
+  C:035DH         LINE#         32
+  C:035FH         LINE#         33
+  C:0362H         LINE#         34
+  -------         ENDPROC       ESP_INIT
+  -------         PROC          ESP_ATSETUP
+  C:016CH         LINE#         42
+  C:016CH         LINE#         43
+  C:016EH         LINE#         44
+  C:0170H         LINE#         46
+  C:0177H         LINE#         48
+  C:0180H         LINE#         49
+  C:0187H         LINE#         51
+  C:0190H         LINE#         52
+  C:0197H         LINE#         61
+  C:019EH         LINE#         64
+  C:01A7H         LINE#         65
+  C:01AEH         LINE#         67
+  C:01B7H         LINE#         68
+  C:01BEH         LINE#         70
+  C:01C0H         LINE#         71
+  C:01C2H         LINE#         72
+  -------         ENDPROC       ESP_ATSETUP
+  -------         PROC          _ESP_SENDSTATUS
+  D:0007H         SYMBOL        light
+  D:0005H         SYMBOL        fan
+  -------         DO            
+  D:000BH         SYMBOL        buf
+  -------         ENDDO         
+  C:00B2H         LINE#         78
+  C:00B2H         LINE#         81
+  C:00B5H         LINE#         82
+  C:00C0H         LINE#         83
+  C:00CBH         LINE#         85
+  C:00CEH         LINE#         87
+  C:00D1H         LINE#         88
+  C:00D4H         LINE#         89
+  C:00D7H         LINE#         90
+  C:00DFH         LINE#         92
+  C:00DFH         LINE#         94
+  C:00E2H         LINE#         95
+BL51 BANKED LINKER/LOCATER V6.22                                                      10/20/2026  19:53:08  PAGE 8
+
+
+  C:00EBH         LINE#         96
+  C:00F0H         LINE#         97
+  C:00F9H         LINE#         98
+  C:0100H         LINE#         99
+  C:0109H         LINE#         100
+  C:0110H         LINE#         101
+  -------         ENDPROC       _ESP_SENDSTATUS
+  -------         PROC          _ESP_RECEIVEHANDLER
+  D:0007H         SYMBOL        rx_data
+  C:01C3H         LINE#         109
+  C:01C3H         LINE#         110
+  C:01C6H         LINE#         112
+  C:01C6H         LINE#         115
+  C:01C9H         LINE#         116
+  C:01CBH         LINE#         117
+  C:01D7H         LINE#         118
+  C:01D9H         LINE#         119
+  C:01DAH         LINE#         121
+  C:01DAH         LINE#         123
+  C:01E3H         LINE#         124
+  C:01E5H         LINE#         125
+  C:01EAH         LINE#         126
+  C:01ECH         LINE#         127
+  C:01EEH         LINE#         128
+  C:01EFH         LINE#         130
+  C:01EFH         LINE#         131
+  C:01FAH         LINE#         134
+  C:01FDH         LINE#         135
+  C:01FFH         LINE#         136
+  C:0202H         LINE#         137
+  C:0206H         LINE#         139
+  C:0209H         LINE#         140
+  C:020DH         LINE#         142
+  C:0210H         LINE#         143
+  C:0214H         LINE#         145
+  C:0214H         LINE#         147
+  C:0214H         LINE#         149
+  C:0217H         LINE#         150
+  C:0219H         LINE#         151
+  C:0219H         LINE#         152
+  -------         ENDPROC       _ESP_RECEIVEHANDLER
+  -------         PROC          ESP_GETCOMMAND
+  -------         DO            
+  D:0007H         SYMBOL        cmd
+  -------         ENDDO         
+  C:0371H         LINE#         155
+  C:0371H         LINE#         158
+  C:0373H         LINE#         159
+  C:0375H         LINE#         160
+  C:0378H         LINE#         161
+  C:037AH         LINE#         163
+  C:037AH         LINE#         164
+  -------         ENDPROC       ESP_GETCOMMAND
+  -------         ENDMOD        ESP8266
+
+  -------         MODULE        KEY
+  C:0000H         SYMBOL        _ICE_DUMMY_
+BL51 BANKED LINKER/LOCATER V6.22                                                      10/20/2026  19:53:08  PAGE 9
+
+
+  C:02BAH         PUBLIC        Key_Scan
+  B:00B0H.2       PUBLIC        P3_2
+  B:00B0H.3       PUBLIC        P3_3
+  -------         PROC          KEY_SCAN
+  -------         DO            
+  D:000AH         SYMBOL        key_val
+  -------         ENDDO         
+  C:02BAH         LINE#         4
+  C:02BAH         LINE#         5
+  C:02BDH         LINE#         8
+  C:02C0H         LINE#         9
+  C:02C6H         LINE#         10
+  C:02C9H         LINE#         11
+  C:02CCH         LINE#         12
+  C:02CFH         LINE#         13
+  C:02CFH         LINE#         14
+  C:02CFH         LINE#         17
+  C:02D2H         LINE#         18
+  C:02D9H         LINE#         19
+  C:02DCH         LINE#         20
+  C:02DFH         LINE#         21
+  C:02E2H         LINE#         22
+  C:02E2H         LINE#         23
+  C:02E2H         LINE#         25
+  C:02E4H         LINE#         26
+  -------         ENDPROC       KEY_SCAN
+  -------         ENDMOD        KEY
+
+  -------         MODULE        ?C?CLDPTR
+  C:0003H         PUBLIC        ?C?CLDPTR
+  -------         ENDMOD        ?C?CLDPTR
+
+  -------         MODULE        ?C?ICALL
+  C:001CH         PUBLIC        ?C?ICALL
+  C:0020H         PUBLIC        ?C?ICALL2
+  -------         ENDMOD        ?C?ICALL
+
+Program Size: data=28.0 xdata=0 code=938
+LINK/LOCATE RUN COMPLETE.  0 WARNING(S),  0 ERROR(S)

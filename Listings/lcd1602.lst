@@ -1,0 +1,78 @@
+C51 COMPILER V9.54   LCD1602                                                               09/22/2026 20:49:45 PAGE 1   
+
+
+C51 COMPILER V9.54, COMPILATION OF MODULE LCD1602
+OBJECT MODULE PLACED IN .\Objects\lcd1602.obj
+COMPILER INVOKED BY: D:\keil\C51\BIN\C51.EXE lcd1602.c OPTIMIZE(8,SPEED) BROWSE DEBUG OBJECTEXTEND PRINT(.\Listings\lcd1
+                    -602.lst) TABS(2) OBJECT(.\Objects\lcd1602.obj)
+
+line level    source
+
+   1          #include "lcd1602.h"
+   2          #include "delay.h"
+   3          #include <reg52.h>
+   4          #include <intrins.h>
+   5          
+   6          /* ============ 引脚定义 (普中51-实验板) ============ */
+   7          sbit LCD_RS = P2^6;              /* 寄存器选择: 0=命令 1=数据 */
+   8          sbit LCD_RW = P2^5;              /* 读写选择: 0=写 */
+   9          sbit LCD_E  = P2^7;              /* 使能脉冲: 下降沿锁存 */
+  10          #define LCD_DATA P0               /* 8位数据口 */
+  11          
+  12          /* 内部函数: 写命令(rs=0)/数据(rs=1) */
+  13          static void lcd_write(u8 rs, u8 dat)
+  14          {
+  15   1          LCD_RS = rs;
+  16   1          LCD_RW = 0;
+  17   1          LCD_DATA = dat;
+  18   1          LCD_E = 1;
+  19   1          _nop_();
+  20   1          _nop_();
+  21   1          LCD_E = 0;
+  22   1          delay_us(50);
+  23   1      }
+  24          
+  25          void lcd_init(void)
+  26          {
+  27   1          delay_ms(15);                        /* 上电等待 */
+  28   1          lcd_write(0, 0x30); delay_ms(5);     /* 8位模式唤醒 */
+  29   1          lcd_write(0, 0x30); delay_ms(1);
+  30   1          lcd_write(0, 0x30); delay_ms(1);
+  31   1          lcd_write(0, 0x38); delay_ms(1);     /* 8位, 2行, 5x8 */
+  32   1          lcd_write(0, 0x08); delay_ms(1);     /* 显示关 */
+  33   1          lcd_write(0, 0x01); delay_ms(2);     /* 清屏 */
+  34   1          lcd_write(0, 0x06); delay_ms(1);     /* 光标右移 */
+  35   1          lcd_write(0, 0x0F); delay_ms(1);     /* 显示开, 光标闪烁 */
+  36   1      }
+  37          
+  38          void lcd_write_data(u8 dat)
+  39          {
+  40   1          lcd_write(1, dat);
+  41   1      }
+  42          
+  43          void lcd_set_cursor(u8 row, u8 col)
+  44          {
+  45   1          lcd_write(0, (u8)(0x80 + (row ? 0x40 : 0x00) + (col & 0x0F)));
+  46   1      }
+  47          
+  48          void lcd_clear(void)
+  49          {
+  50   1          lcd_write(0, 0x01);
+  51   1          delay_ms(2);
+  52   1      }
+
+
+C51 COMPILER V9.54   LCD1602                                                               09/22/2026 20:49:45 PAGE 2   
+
+MODULE INFORMATION:   STATIC OVERLAYABLE
+   CODE SIZE        =    177    ----
+   CONSTANT SIZE    =   ----    ----
+   XDATA SIZE       =   ----    ----
+   PDATA SIZE       =   ----    ----
+   DATA SIZE        =   ----    ----
+   IDATA SIZE       =   ----    ----
+   BIT SIZE         =   ----    ----
+END OF MODULE INFORMATION.
+
+
+C51 COMPILATION COMPLETE.  0 WARNING(S),  0 ERROR(S)

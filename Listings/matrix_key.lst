@@ -1,0 +1,56 @@
+C51 COMPILER V9.54   MATRIX_KEY                                                            09/22/2026 20:49:46 PAGE 1   
+
+
+C51 COMPILER V9.54, COMPILATION OF MODULE MATRIX_KEY
+OBJECT MODULE PLACED IN .\Objects\matrix_key.obj
+COMPILER INVOKED BY: D:\keil\C51\BIN\C51.EXE matrix_key.c OPTIMIZE(8,SPEED) BROWSE DEBUG OBJECTEXTEND PRINT(.\Listings\m
+                    -atrix_key.lst) TABS(2) OBJECT(.\Objects\matrix_key.obj)
+
+line level    source
+
+   1          #include "matrix_key.h"
+   2          #include <reg52.h>
+   3          
+   4          /* ============ 键盘映射表 ============
+   5           * 扫描原始值 = 键号-1 (S1=0, S2=1, ..., S16=15),
+   6           * 但板上物理排列是 S13 S9 S5 S1 / S14 S10 S6 S2 / ...
+   7           * 下表把原始值重排成"左上角=0"的自然顺序。
+   8           * 若个别键对不上, 改这张表即可。 */
+   9          code u8 keymap[16] = {
+  10              3, 7, 11, 15,   /* 原始0,1,2,3 (S1,S2,S3,S4  最右列) -> 右上起 */
+  11              2, 6, 10, 14,   /* 原始4,5,6,7 (S5..S8) */
+  12              1, 5, 9, 13,    /* 原始8,9,10,11 (S9..S12) */
+  13              0, 4, 8, 12     /* 原始12,13,14,15 (S13..S16 最左列) -> 左上起 */
+  14          };
+  15          
+  16          u8 key_scan(void)
+  17          {
+  18   1          u8 col, row, cc, i;
+  19   1      
+  20   1          for (col = 0; col < 4; col++) {
+  21   2              /* 只把第 col 列(P1.col)拉低, 其余列高; 行作输入 */
+  22   2              P1 = (u8)(0xF0 | (~(1 << col) & 0x0F));
+  23   2              row = (u8)(P1 >> 4);             /* 读行 P1.7~P1.4 */
+  24   2              if (row != 0x0F) {               /* 该列有键按下 */
+  25   3                  cc = (u8)(~row & 0x0F);
+  26   3                  for (i = 0; i < 4; i++)
+  27   3                      if (cc & (1 << i))
+  28   3                          return keymap[col * 4 + i];
+  29   3              }
+  30   2          }
+  31   1          return KEY_NONE;
+  32   1      }
+
+
+MODULE INFORMATION:   STATIC OVERLAYABLE
+   CODE SIZE        =    100    ----
+   CONSTANT SIZE    =     16    ----
+   XDATA SIZE       =   ----    ----
+   PDATA SIZE       =   ----    ----
+   DATA SIZE        =   ----    ----
+   IDATA SIZE       =   ----    ----
+   BIT SIZE         =   ----    ----
+END OF MODULE INFORMATION.
+
+
+C51 COMPILATION COMPLETE.  0 WARNING(S),  0 ERROR(S)
